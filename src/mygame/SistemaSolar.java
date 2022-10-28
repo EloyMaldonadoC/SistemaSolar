@@ -6,6 +6,11 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.ChaseCamera;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.KeyTrigger;
+import com.jme3.input.controls.Trigger;
 import com.jme3.material.Material;
 import com.jme3.math.FastMath;
 import com.jme3.scene.Geometry;
@@ -19,6 +24,10 @@ import com.jme3.system.AppSettings;
  * @author Eloy
  */
 public class SistemaSolar extends SimpleApplication{
+    
+    public Spatial Pibote;
+    public Spatial CamaraTierra;
+    public Spatial CamaraLuna;
     
     public Spatial OrbitaMercurio;
     public Spatial RotacionMercurio;
@@ -47,6 +56,12 @@ public class SistemaSolar extends SimpleApplication{
     public Spatial OrbitaNeptuno;
     public Spatial RotacionNeptuno;
     
+    private final static Trigger TRIGGER_CAMARA = new KeyTrigger(KeyInput.KEY_T);
+    private final static String MAPPING_FOCUS = "Camara Tierra";
+    
+    private final static Trigger TRIGGER_MAIN_CAMARA = new KeyTrigger(KeyInput.KEY_SPACE);
+    private final static String MAPPING_SPACE = "Camara Sistema Solar";
+    
     public static void main(String[] args){
         AppSettings settings = new AppSettings(true);
         settings.setFrameRate(30);
@@ -62,7 +77,11 @@ public class SistemaSolar extends SimpleApplication{
     @Override
     public void simpleInitApp(){
         
-        flyCam.setMoveSpeed(60f);
+        inputManager.addMapping(MAPPING_FOCUS, TRIGGER_CAMARA);
+        inputManager.addListener(actionListener, new String[]{MAPPING_FOCUS});
+        
+        inputManager.addMapping(MAPPING_SPACE, TRIGGER_MAIN_CAMARA);
+        inputManager.addListener(actionListener, new String[]{MAPPING_SPACE});
         
         Node puntoRotacionSolar = new Node("PuntoRotacionSolar");
         
@@ -96,42 +115,42 @@ public class SistemaSolar extends SimpleApplication{
         //Creacion de la geometria del sol
         Sphere sol = new Sphere(150, 150, 20);
         Geometry solGeo = new Geometry("sol", sol);
-        solGeo.rotate(FastMath.HALF_PI, 0, 0);
+        solGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la geometria de mercurio
         Sphere mercurio = new Sphere(30, 30, 2);
         Geometry mercurioGeo = new Geometry("mercurio", mercurio);
-        mercurioGeo.rotate(FastMath.HALF_PI, 0, 0);
+        mercurioGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la geometria de venus
         Sphere venus = new Sphere(30, 30, 5);
         Geometry venusGeo = new Geometry("venus", venus);
-        venusGeo.rotate(FastMath.HALF_PI, 0, 0);
+        venusGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la geometria de Marte
         Sphere marte = new Sphere(30, 30, 4);
         Geometry marteGeo = new Geometry("marte", marte);
-        marteGeo.rotate(FastMath.HALF_PI, 0, 0);
+        marteGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la geometria de la tierra
         Sphere tierra = new Sphere(50, 50, 6);
         Geometry tierraGeo = new Geometry("tierra", tierra);
-        tierraGeo.rotate(FastMath.HALF_PI, 0, 0);
+        tierraGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la geometria de la luna
         Sphere luna = new Sphere(30, 30, 1);
         Geometry lunaGeo = new Geometry("luna", luna);
-        lunaGeo.rotate(FastMath.HALF_PI, 0, 0);
+        lunaGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la geometria de jupiter
         Sphere jupiter = new Sphere(100, 100, 10);
         Geometry jupiterGeo = new Geometry("jupiter", jupiter);
-        jupiterGeo.rotate(FastMath.HALF_PI, 0, 0);
+        jupiterGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la geometria de saturno
         Sphere saturno = new Sphere(100, 100, 8);
         Geometry saturnoGeo = new Geometry("saturno", saturno);
-        saturnoGeo.rotate(FastMath.HALF_PI, 0, 0);
+        saturnoGeo.rotate(FastMath.HALF_PI*3, 0, 0);
         
         //Creacion de la textura del sol
         Material matSol = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -160,7 +179,7 @@ public class SistemaSolar extends SimpleApplication{
         
         //Creacion de la textura de la luna
         Material  matLuna = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        matLuna.setTexture("ColorMap", assetManager.loadTexture("Textures/deathstar.png"));
+        matLuna.setTexture("ColorMap", assetManager.loadTexture("Textures/luna.png"));
         lunaGeo.setMaterial(matLuna);
         
         //Creacion de la textura de jupiter
@@ -218,12 +237,11 @@ public class SistemaSolar extends SimpleApplication{
         
         puntoRotacionSaturno.move(180, 0, 0);
         
+        camara();
     }
     @Override
     public void simpleUpdate(float tpf){
-        
-        System.out.println(tpf);
-        
+       
         float rotaMerc = FastMath.DEG_TO_RAD*0.1f;
         float obrMerc = FastMath.DEG_TO_RAD*0.2f;
         
@@ -233,8 +251,8 @@ public class SistemaSolar extends SimpleApplication{
         float rotaTier = FastMath.DEG_TO_RAD*0.5f;
         float obrTierra = FastMath.DEG_TO_RAD*0.4f;
         
-        float rotaLun = FastMath.DEG_TO_RAD*0.2f;
-        float obrLun = FastMath.DEG_TO_RAD*0.1f;
+        float rotaLun = FastMath.DEG_TO_RAD*0.1f;
+        float obrLun = FastMath.DEG_TO_RAD*0.2f;
         
         float rotaMar = FastMath.DEG_TO_RAD*0.4f;
         float obrMart = FastMath.DEG_TO_RAD*0.6f;
@@ -343,4 +361,38 @@ public class SistemaSolar extends SimpleApplication{
             OrbitaSaturno.rotate(0, obrSat, 0);
         }
     }
+    
+    public void camara(){
+        flyCam.setEnabled(false);
+        Pibote = rootNode.getChild("PuntoRotacionSolar");
+        ChaseCamera camara = new ChaseCamera(cam, Pibote, inputManager);
+        camara.setDefaultDistance(300);
+    }
+    
+    public void camaraLuna(){
+        flyCam.setEnabled(false);
+        CamaraLuna = rootNode.getChild("PuntoRotacionLunar");
+        ChaseCamera camara = new ChaseCamera(cam, CamaraLuna, inputManager);
+        camara.setDefaultDistance(4);
+    }
+    
+    public void camaraTierra(){
+        flyCam.setEnabled(false);
+        CamaraTierra = rootNode.getChild("PuntoRotacionTerrestre");
+        ChaseCamera camara = new ChaseCamera(cam, CamaraTierra, inputManager);
+        camara.setDefaultDistance(20);
+    }
+    
+    private final ActionListener actionListener = new ActionListener() {
+        @Override
+        public void onAction(String name, boolean isPressed, float tpf) {
+            System.out.println("you triggered : " + name);
+            if(name.equals(MAPPING_FOCUS) && isPressed){
+                camaraTierra();
+            }
+            if(name.equals(MAPPING_SPACE) && isPressed){
+                camaraLuna();
+            }
+        }
+    };
 }
